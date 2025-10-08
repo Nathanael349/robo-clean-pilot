@@ -66,35 +66,42 @@ const Index = () => {
           {/* Directional Controls */}
           <div className="bg-card p-6 rounded-lg border-2 border-border shadow-[0_0_15px_rgba(0,255,255,0.15)]">
             <h2 className="text-lg font-semibold mb-4 text-primary uppercase tracking-wide">Movement</h2>
-            <div className="grid grid-cols-3 gap-2 w-fit mx-auto">
-              <div className="col-start-2">
+            <div className="relative w-fit mx-auto">
+              <div className="grid grid-cols-3 gap-0 w-fit">
+                {/* Top row - Up button */}
+                <div />
                 <ControlButton
                   icon={ArrowUp}
                   onClick={() => handleDirection("forward")}
                   active={activeDirection === "forward"}
                   label="Move forward"
                 />
-              </div>
-              <ControlButton
-                icon={ArrowLeft}
-                onClick={() => handleDirection("left")}
-                active={activeDirection === "left"}
-                label="Turn left"
-              />
-              <div />
-              <ControlButton
-                icon={ArrowRight}
-                onClick={() => handleDirection("right")}
-                active={activeDirection === "right"}
-                label="Turn right"
-              />
-              <div className="col-start-2">
+                <div />
+                
+                {/* Middle row - Left, Center, Right */}
+                <ControlButton
+                  icon={ArrowLeft}
+                  onClick={() => handleDirection("left")}
+                  active={activeDirection === "left"}
+                  label="Turn left"
+                />
+                <div className="h-16 w-16 rounded-full bg-control-bg border-2 border-border" />
+                <ControlButton
+                  icon={ArrowRight}
+                  onClick={() => handleDirection("right")}
+                  active={activeDirection === "right"}
+                  label="Turn right"
+                />
+                
+                {/* Bottom row - Down button */}
+                <div />
                 <ControlButton
                   icon={ArrowDown}
                   onClick={() => handleDirection("backward")}
                   active={activeDirection === "backward"}
                   label="Move backward"
                 />
+                <div />
               </div>
             </div>
           </div>
