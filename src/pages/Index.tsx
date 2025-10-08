@@ -47,8 +47,10 @@ const Index = () => {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <header className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">Vacuum Robot Control</h1>
-          <p className="text-sm text-muted-foreground">Minimalist control interface</p>
+          <h1 className="text-3xl font-bold text-primary drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]">
+            VACUUM ROBOT CONTROL
+          </h1>
+          <p className="text-sm text-muted-foreground uppercase tracking-wider">Neural Interface v2.0</p>
         </header>
 
         {/* Camera Feed */}
@@ -62,8 +64,8 @@ const Index = () => {
         {/* Control Panel */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Directional Controls */}
-          <div className="bg-card p-6 rounded-lg border border-border">
-            <h2 className="text-lg font-semibold mb-4">Movement</h2>
+          <div className="bg-card p-6 rounded-lg border-2 border-border shadow-[0_0_15px_rgba(0,255,255,0.15)]">
+            <h2 className="text-lg font-semibold mb-4 text-primary uppercase tracking-wide">Movement</h2>
             <div className="grid grid-cols-3 gap-2 w-fit mx-auto">
               <div className="col-start-2">
                 <ControlButton
@@ -99,8 +101,8 @@ const Index = () => {
 
           {/* Action Controls */}
           <div className="space-y-4">
-            <div className="bg-card p-6 rounded-lg border border-border">
-              <h2 className="text-lg font-semibold mb-4">Actions</h2>
+            <div className="bg-card p-6 rounded-lg border-2 border-border shadow-[0_0_15px_rgba(0,255,255,0.15)]">
+              <h2 className="text-lg font-semibold mb-4 text-primary uppercase tracking-wide">Actions</h2>
               <Button
                 onClick={toggleSuction}
                 size="lg"

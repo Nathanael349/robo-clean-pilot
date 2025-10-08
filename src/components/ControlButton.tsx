@@ -23,8 +23,9 @@ const ControlButton = ({
       variant={variant === "destructive" ? "destructive" : "outline"}
       size="lg"
       className={cn(
-        "h-16 w-16 transition-all hover:scale-105",
-        active && "bg-accent text-accent-foreground border-accent hover:bg-accent"
+        "h-16 w-16 transition-all hover:scale-105 bg-control-bg border-2",
+        "hover:shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:border-primary",
+        active && "bg-primary/20 text-primary border-primary shadow-[0_0_30px_rgba(0,255,255,0.5)] scale-105"
       )}
       aria-label={label}
     >
