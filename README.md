@@ -60,6 +60,32 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Control the Arduino over Web Serial
+
+This UI can directly control an Arduino (or any serial device) using the browser's Web Serial API. It's great for sending movement commands with the on-screen buttons that map to WASD keys your Arduino already understands.
+
+Supported browsers:
+
+- Chrome or Edge on desktop (HTTPS or localhost only). Safari/Firefox do not support Web Serial yet.
+
+How to use:
+
+1. Start the dev server.
+2. Open the app in Chrome/Edge.
+3. Click "Connect" in the Arduino Connection panel.
+4. Select your Arduino serial port and confirm at 9600 baud (default).
+5. Use the Movement buttons (or press W/A/S/D) to send single-character commands:
+	- forward: `w`
+	- left: `a`
+	- backward: `s`
+	- right: `d`
+
+Notes:
+
+- Your Arduino sketch should read single characters from Serial at the chosen baud rate and act accordingly.
+- If nothing happens, make sure the correct port is selected and that the board isn't already open in another app (Arduino IDE Serial Monitor, etc.). Close other apps and reconnect.
+- Disconnect anytime from the same panel.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/da72f314-c829-4fb3-8024-53b12a605fd8) and click on Share -> Publish.

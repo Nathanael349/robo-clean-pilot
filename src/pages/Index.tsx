@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Power } from "lucide-react";
 import CameraFeed from "@/components/CameraFeed";
 import ControlButton from "@/components/ControlButton";
@@ -6,6 +6,7 @@ import WarningIndicator from "@/components/WarningIndicator";
 import SpeedControl from "@/components/SpeedControl";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { serial, type SerialStatus } from "@/lib/serial";
 
 const Index = () => {
   const [activeDirection, setActiveDirection] = useState<string | null>(null);
@@ -13,6 +14,25 @@ const Index = () => {
   const [speed, setSpeed] = useState(50);
   const [wallWarning, setWallWarning] = useState(false);
   const { toast } = useToast();
+  const [serialStatus, setSerialStatus] = useState<SerialStatus>("disconnected");
+
+  useEffect(() => {
+    const unsub = serial.onStatusChange(setSerialStatus);
+    return () => unsub();
+  }, []);
+
+  // Optional: WASD keyboard shortcuts mirror the buttons
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const k = e.key.toLowerCase();
+      if (k === "w") handleDirection("forward");
+      else if (k === "a") handleDirection("left");
+      else if (k === "s") handleDirection("backward");
+      else if (k === "d") handleDirection("right");
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [speed, serialStatus]);
 
   const handleDirection = (direction: string) => {
     setActiveDirection(direction);
@@ -20,8 +40,25 @@ const Index = () => {
       title: `Moving ${direction}`,
       description: `Speed: ${speed}%`,
     });
-    // Send command to Flask backend here
-    console.log(`Command: ${direction}, Speed: ${speed}`);
+    // Map direction to Arduino command characters: w/a/s/d
+    const map: Record<string, string> = {
+      forward: "w",
+      left: "a",
+      backward: "s",
+      right: "d",
+    };
+    const cmd = map[direction];
+    if (cmd) {
+      if (serialStatus === "connected") {
+        serial
+          .send(cmd)
+          .catch((err) => console.error("Serial send failed:", err));
+      } else {
+        console.warn("Serial not connected; command not sent");
+      }
+    }
+    // For visibility in dev tools
+    console.log(`Command: ${direction} -> ${cmd ?? "?"}, Speed: ${speed}`);
     
     // Reset active state after a short delay
     setTimeout(() => setActiveDirection(null), 200);
@@ -57,6 +94,52 @@ const Index = () => {
         <section>
           <CameraFeed />
         </section>
+
+        {/* Serial Connection */}
+        <div className="bg-card p-4 rounded-lg border-2 border-border flex items-center justify-between gap-3">
+          <div className="text-sm">
+            <div className="font-semibold">Arduino Connection</div>
+            <div className="text-muted-foreground">
+              {serial.supported
+                ? serialStatus === "connected"
+                  ? "Connected"
+                  : serialStatus === "connecting"
+                    ? "Connecting..."
+                    : "Disconnected"
+                : "Web Serial not supported in this browser"}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {serial.supported && serialStatus !== "connected" && (
+              <Button
+                onClick={async () => {
+                  try {
+                    await serial.requestPort();
+                    await serial.connect({ baudRate: 9600 });
+                    toast({ title: "Serial connected", description: "Ready to send commands" });
+                  } catch (err: any) {
+                    toast({ title: "Serial error", description: err?.message ?? String(err), variant: "destructive" });
+                  }
+                }}
+                size="sm"
+              >
+                Connect
+              </Button>
+            )}
+            {serial.supported && serialStatus === "connected" && (
+              <Button
+                onClick={async () => {
+                  await serial.disconnect();
+                  toast({ title: "Serial disconnected" });
+                }}
+                size="sm"
+                variant="secondary"
+              >
+                Disconnect
+              </Button>
+            )}
+          </div>
+        </div>
 
         {/* Warning Indicator */}
         <WarningIndicator active={wallWarning} />
