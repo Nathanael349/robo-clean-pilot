@@ -79,6 +79,10 @@ const Index = () => {
     setWallWarning(!wallWarning);
   };
 
+  // Camera feed from Flask/Python (camera_control.py)
+  // Override via VITE_CAMERA_FEED_URL if your server runs elsewhere
+  const cameraFeedUrl = (import.meta as any).env?.VITE_CAMERA_FEED_URL ?? "http://localhost:5000/video_feed";
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -92,7 +96,7 @@ const Index = () => {
 
         {/* Camera Feed */}
         <section>
-          <CameraFeed />
+          <CameraFeed videoSrc={cameraFeedUrl} />
         </section>
 
         {/* Serial Connection */}
