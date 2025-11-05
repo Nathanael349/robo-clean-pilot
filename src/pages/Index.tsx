@@ -29,6 +29,7 @@ const Index = () => {
       else if (k === "a") handleDirection("left");
       else if (k === "s") handleDirection("backward");
       else if (k === "d") handleDirection("right");
+      else if (k === "p") handleStop();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -72,6 +73,19 @@ const Index = () => {
     });
     // Send command to Flask backend here
     console.log(`Suction: ${!suctionActive ? 'ON' : 'OFF'}`);
+  };
+
+  const handleStop = () => {
+    setActiveDirection(null);
+    toast({ title: "Stop", description: "Motors halted" });
+    if (serialStatus === "connected") {
+      serial
+        .send("p")
+        .catch((err) => console.error("Serial send failed:", err));
+    } else {
+      console.warn("Serial not connected; stop not sent");
+    }
+    console.log("Command: stop -> p");
   };
 
   // Simulate sensor data (replace with actual Flask API call)
