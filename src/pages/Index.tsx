@@ -30,6 +30,8 @@ const Index = () => {
       else if (k === "s") handleDirection("backward");
       else if (k === "d") handleDirection("right");
       else if (k === "p") handleStop();
+      else if (k === "i") handleSuction(true);
+      else if (k === "o") handleSuction(false);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -65,14 +67,22 @@ const Index = () => {
     setTimeout(() => setActiveDirection(null), 200);
   };
 
+  const handleSuction = (start: boolean) => {
+    setSuctionActive(start);
+    toast({ title: start ? "Suction started" : "Suction stopped" });
+    const cmd = start ? "i" : "o";
+    if (serialStatus === "connected") {
+      serial
+        .send(cmd)
+        .catch((err) => console.error("Serial send failed:", err));
+    } else {
+      console.warn("Serial not connected; suction command not sent");
+    }
+    console.log(`Command: suction -> ${cmd}`);
+  };
+
   const toggleSuction = () => {
-    setSuctionActive(!suctionActive);
-    toast({
-      title: suctionActive ? "Suction stopped" : "Suction started",
-      variant: suctionActive ? "default" : "default",
-    });
-    // Send command to Flask backend here
-    console.log(`Suction: ${!suctionActive ? 'ON' : 'OFF'}`);
+    handleSuction(!suctionActive);
   };
 
   const handleStop = () => {
