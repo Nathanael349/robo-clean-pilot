@@ -18,9 +18,10 @@ camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 last_state = -1    # remember last value sent (to avoid spamming)
+last_sent_time = 0 # for periodic updates
 
 def gen_frames():
-    global last_state
+    global last_state, last_sent_time
 
     while True:
         success, frame = camera.read()
@@ -52,12 +53,19 @@ def gen_frames():
             x, y, w, h = cv2.boundingRect(c)
             cv2.rectangle(frame, (x,y), (x+w, y+h), (0,0,255), 2)
 
-        # ----- SEND SERIAL UPDATE ONLY IF STATE CHANGES -----
+        # ----- SEND SERIAL UPDATE -----
         state_value = 1 if red_found else 0
-        if state_value != last_state:
-            msg = f"RED:{state_value}\n"
-            arduino.write(msg.encode())
+        current_time = time.time()
+        
+        # Send if state changed OR if 1 second has passed (keep-alive/sync)
+        if state_value != last_state or (current_time - last_sent_time > 1.0):
+            if state_value == 1:
+                msg = "K"
+                arduino.write(msg.encode())
+            # We don't need to send anything for 0, Arduino times out after 500ms
+            
             last_state = state_value
+            last_sent_time = current_time
 
         # Encode to JPEG for browser
         ret, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
