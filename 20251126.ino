@@ -19,7 +19,7 @@ const int echo_pin1 = 2;
 
 
 const int RED_DETECT_PIN = A2; // digital IN from color sensor or OpenMV (HIGH when red seen)
-const int BUZZER_PIN = A1;     // buzzer output (digital)
+const int LED_PIN = A1;     // led output (digital)
 const int SENSOR_INTERVAL = 100; // ms
 
 // Navigation / speed
@@ -58,10 +58,10 @@ bool seeingRed = false;
 bool redZoneTriggered = false;
 unsigned long redZoneTimer = 0;
 
-// --- NEW VARIABLES FOR 'K' SIGNAL ---
 bool targetDetected = false;     // True if 'K' received
 unsigned long lastSignalTime = 0;
 const int SIGNAL_TIMEOUT = 500;  // Reset 'K' status if not received for 500ms
+static unsigned long vacuumResumeTime = 0;
 
 // Manual Mode State
 bool manualMode = false;
@@ -157,8 +157,8 @@ void setup() {
   digitalWrite(trig_pin2, LOW);
   pinMode(echo_pin2, INPUT);
   pinMode(RED_DETECT_PIN, INPUT);
-  pinMode(BUZZER_PIN, OUTPUT);
-  digitalWrite(BUZZER_PIN, LOW);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
   Serial.begin(115200);
   vacuum_init();
   lastPidTime = millis();
@@ -255,16 +255,15 @@ void loop() {
   // ------------------------------------------
   // If Pi sends 'K' AND we are close (12cm)
   if (targetDetected && distanceFront < 60.0) {
-    vacuum_off();
-    digitalWrite(BUZZER_PIN, HIGH);
-    tone(BUZZER_PIN, 2000, 100); // C4
-    delay(500);
-    noTone(BUZZER_PIN);     // Stop sound
-    delay(500);
+
+    vacuumResumeTime = millis() + 6000;
+  }
+  if (millis() < vacuumResumeTime) {
+    vacuum_off(); 
+    digitalWrite(LED_PIN, HIGH); 
   } else {
-    // Otherwise, normal cleaning mode
-    vacuum_on();
-    digitalWrite(BUZZER_PIN, LOW);
+      vacuum_on();
+      digitalWrite(LED_PIN, LOW);
   }
 
   // ------------------------------------------
